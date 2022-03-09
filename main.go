@@ -2,14 +2,17 @@ package main
 
 import (
 	"bufio"
+	"encoding/csv"
 	"errors"
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/scanner"
 
 	"github.com/guillotjulien/dson2csv/internal"
+	"github.com/guillotjulien/dson2csv/internal/writer"
 )
 
 // These values are stored in the parseState stack.
@@ -58,7 +61,33 @@ func main() {
 		}
 	}
 
-	fmt.Println(rows)
+	// fmt.Println(rows)
+
+	o := writer.MapToCSV(rows)
+
+	fileName := strings.TrimSuffix(args[0], filepath.Ext(args[0]))
+	of, err := os.Create(fmt.Sprintf("%s.csv", fileName))
+	if err != nil {
+		log.Fatalf("Failed to create output file: Error: %v\n", err)
+	}
+	defer of.Close()
+
+	// When encoded inside of WSL, excel break character encoding when opened in Windows
+	// https://forum.golangbridge.org/t/csv-characters-problem-with-write/11625/3
+	w := csv.NewWriter(of)
+	headers := o.Headers
+	values := o.Data
+	if err := w.Write(headers); err != nil {
+		log.Fatalf("Failed to write CSV headers. Error: %v\n", err)
+	}
+
+	for _, r := range values {
+		if err := w.Write(r); err != nil {
+			log.Fatalf("Failed to write CSV row: %v. Error: %v\n", r, err)
+		}
+	}
+
+	w.Flush()
 }
 
 func consumeObject(s scanner.Scanner) (val map[string]string, err error) {
