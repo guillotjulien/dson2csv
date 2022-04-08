@@ -52,12 +52,17 @@ func main() {
 		token := s.TokenText()
 
 		if token == "{" {
-			row, err := consumeObject(s)
+			row, err := consumeObject(&s)
 			if err != nil {
 				log.Fatalf("[%v:%v] Unexpected error %v", s.Position.Line, s.Position.Column, err)
 			}
 
 			rows = append(rows, row)
+			token = s.TokenText()
+
+			// FIXME: seems like token isn't right after consume object resulting in being unable to consume the second object
+
+			fmt.Printf("After consumeObject %v:%v %v\n", s.Pos().Line, s.Pos().Column, token)
 		}
 	}
 
@@ -90,10 +95,13 @@ func main() {
 	w.Flush()
 }
 
-func consumeObject(s scanner.Scanner) (val map[string]string, err error) {
+func consumeObject(s *scanner.Scanner) (val map[string]string, err error) {
 	if s.TokenText() != "{" {
 		return nil, errors.New("called consumeObject on non-object structure")
 	}
+
+	fmt.Println("consumeObject called on", s.TokenText())
+	fmt.Println("Out", s.Pos())
 
 	var prevToken string
 
@@ -105,6 +113,8 @@ func consumeObject(s scanner.Scanner) (val map[string]string, err error) {
 	val = make(map[string]string)
 
 	for tok := s.Scan(); tok != scanner.EOF; tok = s.Scan() {
+		fmt.Println("In", s.Pos())
+
 		if len(state) == 0 {
 			break // we successfully consumed the object
 		}
@@ -165,7 +175,7 @@ func consumeObject(s scanner.Scanner) (val map[string]string, err error) {
 	return
 }
 
-func consumeArray(s scanner.Scanner) (val string, err error) {
+func consumeArray(s *scanner.Scanner) (val string, err error) {
 	if s.TokenText() != "[" {
 		return "", errors.New("called consumeArray on non-array structure")
 	}

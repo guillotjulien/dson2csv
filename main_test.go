@@ -32,7 +32,7 @@ func TestConsumeObject(t *testing.T) {
 	s.Init(strings.NewReader(data))
 	s.Scan()
 
-	got, err := consumeObject(s)
+	got, err := consumeObject(&s)
 	if err != nil {
 		t.Fatalf("should return a map. got %v", err)
 	}
@@ -54,7 +54,7 @@ func TestFlatObject(t *testing.T) {
 	s.Init(strings.NewReader(data))
 	s.Scan()
 
-	got, err := consumeObject(s)
+	got, err := consumeObject(&s)
 	if err != nil {
 		t.Fatalf("should return a map. got %v", err)
 	}
@@ -77,7 +77,7 @@ func TestConsumeArraySimple(t *testing.T) {
 	s.Init(strings.NewReader(data))
 	s.Scan()
 
-	got, err := consumeArray(s)
+	got, err := consumeArray(&s)
 	if err != nil {
 		t.Fatalf("should return a string. got %v", err)
 	}
@@ -109,7 +109,7 @@ func TestConsumeArrayObject(t *testing.T) {
 	s.Init(strings.NewReader(data))
 	s.Scan()
 
-	got, err := consumeArray(s)
+	got, err := consumeArray(&s)
 	if err != nil {
 		t.Fatalf("should return a string. got %v", err)
 	}
@@ -128,7 +128,7 @@ func TestConsumeArrayFlat(t *testing.T) {
 	s.Init(strings.NewReader(data))
 	s.Scan()
 
-	got, err := consumeArray(s)
+	got, err := consumeArray(&s)
 	if err != nil {
 		t.Fatalf("should return a string. got %v", err)
 	}
