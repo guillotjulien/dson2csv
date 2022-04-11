@@ -48,6 +48,8 @@ func main() {
 
 	rows := make([]map[string]string, 0)
 
+	// FIXME: seems like the parsing breaks when dealing with strings containing special characters e.g. "[]", "{}"
+
 	for tok := s.Scan(); tok != scanner.EOF; tok = s.Scan() { // TODO: extract the content of the loop to a scanner so that we can invoke it using unit tests / fuzzing
 		token := s.TokenText()
 
@@ -59,10 +61,6 @@ func main() {
 
 			rows = append(rows, row)
 			token = s.TokenText()
-
-			// FIXME: seems like token isn't right after consume object resulting in being unable to consume the second object
-
-			fmt.Printf("After consumeObject %v:%v %v\n", s.Pos().Line, s.Pos().Column, token)
 		}
 	}
 
@@ -100,9 +98,6 @@ func consumeObject(s *scanner.Scanner) (val map[string]string, err error) {
 		return nil, errors.New("called consumeObject on non-object structure")
 	}
 
-	fmt.Println("consumeObject called on", s.TokenText())
-	fmt.Println("Out", s.Pos())
-
 	var prevToken string
 
 	fieldPath := make(internal.Stack, 0)
@@ -113,12 +108,6 @@ func consumeObject(s *scanner.Scanner) (val map[string]string, err error) {
 	val = make(map[string]string)
 
 	for tok := s.Scan(); tok != scanner.EOF; tok = s.Scan() {
-		fmt.Println("In", s.Pos())
-
-		if len(state) == 0 {
-			break // we successfully consumed the object
-		}
-
 		token := s.TokenText()
 
 		if isIgnoreToken(token) { // we don't want to collect those
@@ -166,6 +155,10 @@ func consumeObject(s *scanner.Scanner) (val map[string]string, err error) {
 		}
 
 		prevToken = token
+
+		if len(state) == 0 {
+			break // we successfully consumed the object
+		}
 	}
 
 	if len(state) > 0 {
@@ -187,10 +180,6 @@ func consumeArray(s *scanner.Scanner) (val string, err error) {
 	state = state.Push(parseArrayValue)
 
 	for tok := s.Scan(); tok != scanner.EOF; tok = s.Scan() {
-		if len(state) == 0 {
-			break // we successfully consumed the array
-		}
-
 		token := s.TokenText()
 
 		if isIgnoreToken(token) { // we don't want to collect those
@@ -213,6 +202,10 @@ func consumeArray(s *scanner.Scanner) (val string, err error) {
 		}
 
 		tokens = tokens.Push(token)
+
+		if len(state) == 0 {
+			break // we successfully consumed the array
+		}
 	}
 
 	if len(state) > 0 {
