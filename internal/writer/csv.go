@@ -28,9 +28,7 @@ func MapToCSV(rows []map[string]string) CSVOutput {
 	for _, row := range rows {
 		var r []string
 		for _, h := range o.Headers {
-			if row[h] != "" {
-				r = append(r, row[h])
-			}
+			r = append(r, row[h])
 		}
 		o.Data = append(o.Data, r)
 	}

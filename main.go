@@ -37,18 +37,10 @@ func main() {
 	}
 	defer f.Close()
 
-	// f, err := ioutil.ReadFile(args[0])
-	// if err != nil {
-	// 	log.Fatal("Failed to read input file: ", err)
-	// }
-
 	var s scanner.Scanner
-	s.Init(bufio.NewReader(f)) // FIXME: why does using bufio is a lot slower than reading as a byte array?
-	// s.Init(bytes.NewReader(f))
+	s.Init(bufio.NewReader(f))
 
 	rows := make([]map[string]string, 0)
-
-	// FIXME: seems like the parsing breaks when dealing with strings containing special characters e.g. "[]", "{}"
 
 	for tok := s.Scan(); tok != scanner.EOF; tok = s.Scan() { // TODO: extract the content of the loop to a scanner so that we can invoke it using unit tests / fuzzing
 		token := s.TokenText()
@@ -62,11 +54,15 @@ func main() {
 			rows = append(rows, row)
 			token = s.TokenText()
 		}
+
+		// TODO: This doesn't work with an array of objects
 	}
 
-	// fmt.Println(rows)
+	// For debug
+	// jsonString, _ := json.Marshal(rows)
+	// fmt.Println(string(jsonString))
 
-	o := writer.MapToCSV(rows)
+	o := writer.MapToCSV(rows) // FIXME: CSV writter completely break on mentions-subset while parsing is OK (see debug json)
 
 	fileName := strings.TrimSuffix(args[0], filepath.Ext(args[0]))
 	of, err := os.Create(fmt.Sprintf("%s.csv", fileName))
