@@ -36,7 +36,7 @@ func MapToCSV(rows []map[string]string) CSVOutput {
 		var r []string
 		for _, h := range o.Headers {
 			if utf8.RuneCountInString(row[h]) > MAX_CHAR_PER_CELL { // Excel only allow a certain number of characters per cells
-				row[h] = fmt.Sprintf("%s...", string([]rune(row[h][:MAX_CHAR_PER_CELL-LEEWAY]))) // FIXME: some entries are completely mangled up, could it be because of that?
+				row[h] = fmt.Sprintf("%s...", string([]rune(row[h])[:MAX_CHAR_PER_CELL-LEEWAY]))
 			}
 
 			r = append(r, row[h])

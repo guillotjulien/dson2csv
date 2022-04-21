@@ -1,0 +1,1 @@
+/!\ Do not open the CSV directly, instead open Excel, and use Data > From Text/CSV. Otherwise Excel with completely break the encoding
