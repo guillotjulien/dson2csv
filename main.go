@@ -52,17 +52,10 @@ func main() {
 			}
 
 			rows = append(rows, row)
-			token = s.TokenText()
 		}
-
-		// TODO: This doesn't work with an array of objects
 	}
 
-	// For debug
-	// jsonString, _ := json.Marshal(rows)
-	// fmt.Println(string(jsonString))
-
-	o := writer.MapToCSV(rows) // FIXME: We should generate multiple files if we have more than 999999 rows (excel limit)
+	o := writer.MapToCSV(rows)
 
 	fileName := strings.TrimSuffix(args[0], filepath.Ext(args[0]))
 	of, err := os.Create(fmt.Sprintf("%s.csv", fileName))
