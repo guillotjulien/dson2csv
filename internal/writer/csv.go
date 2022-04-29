@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 	"unicode/utf8"
+
+	"golang.org/x/exp/slices"
 )
 
 const MAX_CHAR_PER_CELL = 32767
@@ -27,10 +29,10 @@ func MapToCSV(rows []map[string]string) CSVOutput {
 
 	o := CSVOutput{}
 
-	// FIXME: when present, _id or id should be the first field
 	for _, h := range reflect.ValueOf(headersMap).MapKeys() {
 		o.Headers = append(o.Headers, h.Interface().(string))
 	}
+	slices.Sort(o.Headers)
 
 	for _, row := range rows {
 		var r []string
